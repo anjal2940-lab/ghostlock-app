@@ -1,4 +1,4 @@
-here@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage")
 
 import java.util.Properties
 
@@ -88,11 +88,8 @@ android {
 
     defaultConfig {
         applicationId = "com.ghostlock.app"
-        
-        // Lowered to 31 for Android 12 support
         minSdk = 31
         targetSdk = 35
-        
         versionCode = gitVersionCode
         versionName = appVersionName
     }
