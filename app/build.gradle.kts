@@ -1,4 +1,4 @@
-@file:Suppress("UnstableApiUsage")
+here@file:Suppress("UnstableApiUsage")
 
 import java.util.Properties
 
@@ -29,7 +29,7 @@ fun parseOffsetValue(text: String): Long = if (text.length > 2 && text.startsWit
     text.toLong()
 }
 
-fun formatOffsetValue(value: Long): String = if (value < 0) "${value}L" else "0x${value.toString(16)}L"
+fun formatOffsetValue(value: String): String = if (value < 0) "${value}L" else "0x${value.toString(16)}L"
 
 fun escapeKotlinString(value: String): String = value.replace("\\", "\\\\").replace("\"", "\\\"")
 
@@ -84,26 +84,29 @@ tasks.register<GenerateSupportedKernelsTask>("generateSupportedKernels") {
 
 android {
     namespace = "com.ghostlock.app"
-    compileSdk {
-        version = release(37) {
-            minorApiLevel = 2
-        }
-    }
+    compileSdk = 35
+
     defaultConfig {
         applicationId = "com.ghostlock.app"
-        minSdk = 34
-        targetSdk = 37
+        
+        // Lowered to 31 for Android 12 support
+        minSdk = 31
+        targetSdk = 35
+        
         versionCode = gitVersionCode
         versionName = appVersionName
     }
+
     androidResources {
         localeFilters += listOf("en", "zh")
     }
+
     sourceSets {
         named("main") {
             kotlin.directories.add(supportedKernelsSrc.get().asFile.absolutePath)
         }
     }
+
     val properties = Properties()
     runCatching { properties.load(project.rootProject.file("local.properties").inputStream()) }
     val keystorePath = (properties.getProperty("KEYSTORE_PATH") ?: System.getenv("KEYSTORE_PATH"))?.trim()?.takeIf { it.isNotEmpty() }
@@ -111,6 +114,7 @@ android {
     val alias = properties.getProperty("KEY_ALIAS") ?: System.getenv("KEY_ALIAS")
     val pwd = properties.getProperty("KEY_PASSWORD") ?: System.getenv("KEY_PASSWORD")
     val keystoreFile = keystorePath?.let(::file)?.takeIf { it.isFile && it.length() > 0L }
+
     if (keystoreFile != null) {
         signingConfigs {
             create("release") {
@@ -123,6 +127,7 @@ android {
             }
         }
     }
+
     buildTypes {
         release {
             optimization.enable = true
@@ -134,13 +139,16 @@ android {
             signingConfig = signingConfigs.getByName(if (keystoreFile != null) "release" else "debug")
         }
     }
+
     buildFeatures {
         buildConfig = true
     }
+
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
     }
+
     packaging {
         jniLibs {
             useLegacyPackaging = true
@@ -150,12 +158,13 @@ android {
             useLegacyPackaging = true
         }
     }
+
     splits {
         abi {
             isEnable = true
             isUniversalApk = false
             reset()
-            include("arm64-v8a")
+            include("arm64-v8a", "armeabi-v7a")
         }
     }
 }
@@ -172,7 +181,7 @@ base {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 tasks.named("preBuild") {
@@ -182,8 +191,8 @@ tasks.named("preBuild") {
 }
 
 dependencies {
-    implementation("androidx.activity:activity-compose:1.13.0")
-    implementation("androidx.compose.foundation:foundation:1.12.1")
+    implementation("androidx.activity:activity-compose:1.10.0")
+    implementation("androidx.compose.foundation:foundation:1.7.8")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("top.yukonga.miuix.kmp:miuix-ui:0.9.4-rc01")
     implementation("top.yukonga.miuix.kmp:miuix-icons:0.9.4-rc01")
