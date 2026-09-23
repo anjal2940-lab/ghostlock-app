@@ -29,6 +29,10 @@ jobs:
         with:
           packages: ''
 
+      - name: Install Rust Toolchain & Android Target
+        run: |
+          rustup target add aarch64-linux-android
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
