@@ -84,12 +84,12 @@ tasks.register<GenerateSupportedKernelsTask>("generateSupportedKernels") {
 
 android {
     namespace = "com.ghostlock.app"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.ghostlock.app"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 37
         versionCode = gitVersionCode
         versionName = appVersionName
     }
